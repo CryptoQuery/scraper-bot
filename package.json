@@ -1,7 +1,7 @@
 {
-  "name": "coindesk_scraper",
+  "name": "crytoquery-bot",
   "version": "0.0.1",
-  "description": "Gets articles from Coin Desk Crypto-News site",
+  "description": "Gets articles from Crypto-News sites",
   "main": "index.js",
   "scripts": {
     "start": "node ."
