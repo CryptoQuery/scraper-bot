@@ -3,7 +3,7 @@ services:
   bot:
     build: .
     environment:
-      NODE_ENV: 'development'
+      NODE_ENV: 'production'
     volumes:
       - ./:/app
       - /app/node_modules

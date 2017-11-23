@@ -41,11 +41,11 @@ var config = {
 };
 
 //CHECK: Get coindesk.com Articles (30 mins)
-new cron('0 */5 * * * *', function() {
+new cron('0 */30 * * * *', function() {
   q.fcall(function() {
     console.log("Getting Coindesk articles");
     // Get articles form Coin Desk
-    return _.range(1,3).reduce(function (chain, current) {
+    return _.range(1,2).reduce(function (chain, current) {
       return chain.then(function (previous) {
         return coindesk.getArticlePages({
           url: config.coindesk.categories[0],
@@ -58,7 +58,7 @@ new cron('0 */5 * * * *', function() {
             // Get article information
             return _.difference(links, _.map(result, 'link')).reduce(function (chain, current) {
               return chain.then(function (previous) {
-                return q.delay(500).then(function () {
+                return q.delay(1000).then(function () {
                   return coindesk.getArticlePage({
                     url: current
                   }).then(function (article) {
@@ -87,11 +87,11 @@ new cron('0 */5 * * * *', function() {
 }, null, true, 'America/Los_Angeles');
 
 //CHECK: Get themerkle.com Articles (30 mins)
-new cron('0 */5 * * * *', function() {
+new cron('0 */31 * * * *', function() {
   q.fcall(function() {
     console.log("Getting The Merkle articles");
     // Get articles form Coin Desk
-    return _.range(1,3).reduce(function (chain, current) {
+    return _.range(1,2).reduce(function (chain, current) {
       return chain.then(function (previous) {
         return themerkle.getArticlePages({
           url: config.themerkle.categories[0],
@@ -104,7 +104,7 @@ new cron('0 */5 * * * *', function() {
             // Get article information
             return _.difference(links, _.map(result, 'link')).reduce(function (chain, current) {
               return chain.then(function (previous) {
-                return q.delay(500).then(function () {
+                return q.delay(1000).then(function () {
                   return themerkle.getArticlePage({
                     url: current
                   }).then(function (article) {
