@@ -68,10 +68,10 @@ new cron('0 */30 * * * *', function() {
                   description: current.description,
                   article: article.body
                 }).then(function() {
-                  console.log("Added article: ", current);
+                  console.log("Added article: ", current.link);
                 });
               }).catch(function(error) {
-                console.log("Error adding article: ", current);
+                console.log("Error adding article: ", current.link);
               });
             });
           });
