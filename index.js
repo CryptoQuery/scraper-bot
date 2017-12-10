@@ -10,6 +10,7 @@ var themerkle = require('./lib/themerkle.js');
 var config = {
   coindesk: {
     categories: [
+      'https://feeds.feedburner.com/CoinDesk',
       'https://www.coindesk.com/category/technology-news',
       'https://www.coindesk.com/category/markets-news',
       'https://www.coindesk.com/category/business-news'
@@ -40,54 +41,50 @@ var config = {
   }
 };
 
-//CHECK: Get coindesk.com Articles (30 mins)
+//DONE: Get coindesk.com Articles (30 mins)
 new cron('0 */30 * * * *', function() {
   q.fcall(function() {
     console.log("Getting Coindesk articles");
     // Get articles form Coin Desk
-    return _.range(1,2).reduce(function (chain, current) {
-      return chain.then(function (previous) {
-        return coindesk.getArticlePages({
-          url: config.coindesk.categories[0],
-          page: current
-        }).then(function (links) {
-          // Check if articles exist
-          return coindesk.getArticlesByUrl({
-            url: links
-          }).then(function (result) {
-            // Get article information
-            return _.difference(links, _.map(result, 'link')).reduce(function (chain, current) {
-              return chain.then(function (previous) {
-                return q.delay(1000).then(function () {
-                  return coindesk.getArticlePage({
-                    url: current
-                  }).then(function (article) {
-                    return coindesk.addArticle({
-                      link: current,
-                      author: article.author,
-                      published_at: isNaN(Date.parse(article.published)) ? new Date().toISOString() : article.published,
-                      title: article.title,
-                      article: article.body
-                    }).then(function() {
-                      console.log("Added article: " + current);
-                    });
-                  }).catch(function() {
-                    console.log("Error adding article: " + current);
-                  });
+    return coindesk.getArticlePages({
+      link: config.coindesk.categories[0]
+    }).then(function (articles) {
+      // Check if articles exist
+      return coindesk.getArticlesByUrl({
+        link: _.map(articles, 'link')
+      }).then(function (result) {
+        // Get article information
+        return _.differenceBy(articles, result, 'link').reduce(function (chain, current) {
+          return chain.then(function (previous) {
+            return q.delay(1000).then(function () {
+              return coindesk.getArticlePage({
+                link: current.link
+              }).then(function (article) {
+                return coindesk.addArticle({
+                  link: current.link,
+                  author: current.author,
+                  published_at: isNaN(Date.parse(current.published)) ? new Date().toISOString() : current.published,
+                  title: current.title,
+                  description: current.description,
+                  article: article.body
+                }).then(function() {
+                  console.log("Added article: ", current);
                 });
+              }).catch(function(error) {
+                console.log("Error adding article: ", current);
               });
-            }, q([]));
+            });
           });
-        });
+        }, q([]));
       });
-    }, q([])).catch(function (error) {
-      console.error(error);
+    }).catch(function (error) {
+      console.log(error);
     });
   });
 }, null, true, 'America/Los_Angeles');
 
 //CHECK: Get themerkle.com Articles (30 mins)
-new cron('0 */31 * * * *', function() {
+/*new cron('0 *!/31 * * * *', function() {
   q.fcall(function() {
     console.log("Getting The Merkle articles");
     // Get articles form Coin Desk
@@ -130,4 +127,4 @@ new cron('0 */31 * * * *', function() {
       console.error(error);
     });
   });
-}, null, true, 'America/Los_Angeles');
+}, null, true, 'America/Los_Angeles');*/
