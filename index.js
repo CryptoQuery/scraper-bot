@@ -44,7 +44,6 @@ var config = {
 //DONE: Get coindesk.com Articles (30 mins)
 new cron('0 */30 * * * *', function() {
   q.fcall(function() {
-    console.log("Getting Coindesk articles");
     // Get articles form Coin Desk
     return coindesk.getArticlePages({
       link: config.coindesk.categories[0]
@@ -54,7 +53,7 @@ new cron('0 */30 * * * *', function() {
         link: _.map(articles, 'link')
       }).then(function (result) {
         // Get article information
-        return _.differenceBy(articles, result, 'link').reduce(function (chain, current) {
+        return _.orderBy(_.differenceBy(articles, result, 'link'), ['published'], ['asc']).reduce(function (chain, current) {
           return chain.then(function (previous) {
             return q.delay(1000).then(function () {
               return coindesk.getArticlePage({

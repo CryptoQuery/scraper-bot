@@ -4,7 +4,8 @@
   "description": "Gets articles from Crypto-News sites",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node test.js"
   },
   "author": "Philip Smith",
   "license": "ISC",
