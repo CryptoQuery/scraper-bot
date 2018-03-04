@@ -83,7 +83,7 @@ new cron('0 */30 * * * *', function() {
 }, null, true, 'America/Los_Angeles');
 
 //CHECK: Get themerkle.com Articles (30 mins)
-/*new cron('0 *!/31 * * * *', function() {
+new cron('0 */31 * * * *', function() {
   q.fcall(function() {
     console.log("Getting The Merkle articles");
     // Get articles form Coin Desk
@@ -92,29 +92,30 @@ new cron('0 */30 * * * *', function() {
         return themerkle.getArticlePages({
           url: config.themerkle.categories[0],
           page: current
-        }).then(function (links) {
+        }).then(function (articles) {
           // Check if articles exist
           return themerkle.getArticlesByUrl({
-            url: links
+            url: _.map(articles, 'link')
           }).then(function (result) {
             // Get article information
-            return _.difference(links, _.map(result, 'link')).reduce(function (chain, current) {
+            return _.differenceBy(articles, result, 'link').reduce(function (chain, current) {
               return chain.then(function (previous) {
                 return q.delay(1000).then(function () {
                   return themerkle.getArticlePage({
-                    url: current
+                    url: current.link
                   }).then(function (article) {
                     return themerkle.addArticle({
-                      link: current,
+                      link: current.link,
                       author: article.author,
                       published_at: isNaN(Date.parse(article.published)) ? new Date().toISOString() : article.published,
                       title: article.title,
+                      description: current.description,
                       article: article.body
                     }).then(function() {
-                      console.log("Added article: " + current);
+                      console.log("Added article: " + current.link);
                     });
                   }).catch(function(error) {
-                    console.error('Error adding article: ' + current);
+                    console.error('Error adding article: ' + current.link);
                   });
                 });
               });
@@ -126,4 +127,4 @@ new cron('0 */30 * * * *', function() {
       console.error(error);
     });
   });
-}, null, true, 'America/Los_Angeles');*/
+}, null, true, 'America/Los_Angeles');
