@@ -42,7 +42,7 @@ var config = {
 };
 
 //DONE: Get coindesk.com Articles (30 mins)
-new cron('0 */30 * * * *', function() {
+new cron('0 0 0 1 * *', function() {
   q.fcall(function() {
     // Get articles form Coin Desk
     return coindesk.getArticlePages({
@@ -61,6 +61,7 @@ new cron('0 */30 * * * *', function() {
               }).then(function (article) {
                 return coindesk.addArticle({
                   link: current.link,
+                  image: article.image,
                   author: current.author,
                   published_at: isNaN(Date.parse(current.published)) ? new Date().toISOString() : current.published,
                   title: current.title,
@@ -82,8 +83,8 @@ new cron('0 */30 * * * *', function() {
   });
 }, null, true, 'America/Los_Angeles');
 
-//CHECK: Get themerkle.com Articles (30 mins)
-new cron('0 */31 * * * *', function() {
+//DONE: Get themerkle.com Articles (30 mins)
+new cron('0 0 0 1 * *', function() {
   q.fcall(function() {
     console.log("Getting The Merkle articles");
     // Get articles form Coin Desk
@@ -106,6 +107,7 @@ new cron('0 */31 * * * *', function() {
                   }).then(function (article) {
                     return themerkle.addArticle({
                       link: current.link,
+                      image: article.image,
                       author: article.author,
                       published_at: isNaN(Date.parse(article.published)) ? new Date().toISOString() : article.published,
                       title: article.title,
