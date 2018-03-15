@@ -86,7 +86,6 @@ new cron('0 0 0 1 * *', function() {
 //DONE: Get themerkle.com Articles (30 mins)
 new cron('0 0 0 1 * *', function() {
   q.fcall(function() {
-    console.log("Getting The Merkle articles");
     // Get articles form Coin Desk
     return _.range(1,2).reduce(function (chain, current) {
       return chain.then(function (previous) {
