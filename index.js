@@ -5,6 +5,7 @@ var cron = require('cron').CronJob;
 
 var coindesk = require('./lib/coindesk.js');
 var themerkle = require('./lib/themerkle.js');
+var misc = require('./lib/misc.js');
 
 
 var config = {
@@ -49,8 +50,8 @@ new cron('0 0 0 1 * *', function() {
       link: config.coindesk.categories[0]
     }).then(function (articles) {
       // Check if articles exist
-      return coindesk.getArticlesByUrl({
-        link: _.map(articles, 'link')
+      return misc.getArticlesByUrl({
+        url: _.map(articles, 'link')
       }).then(function (result) {
         // Get article information
         return _.orderBy(_.differenceBy(articles, result, 'link'), ['published'], ['asc']).reduce(function (chain, current) {
@@ -59,7 +60,7 @@ new cron('0 0 0 1 * *', function() {
               return coindesk.getArticlePage({
                 link: current.link
               }).then(function (article) {
-                return coindesk.addArticle({
+                return misc.addArticle({
                   link: current.link,
                   image: article.image,
                   author: current.author,
@@ -94,7 +95,7 @@ new cron('0 0 0 1 * *', function() {
           page: current
         }).then(function (articles) {
           // Check if articles exist
-          return themerkle.getArticlesByUrl({
+          return misc.getArticlesByUrl({
             url: _.map(articles, 'link')
           }).then(function (result) {
             // Get article information
@@ -104,7 +105,7 @@ new cron('0 0 0 1 * *', function() {
                   return themerkle.getArticlePage({
                     url: current.link
                   }).then(function (article) {
-                    return themerkle.addArticle({
+                    return misc.addArticle({
                       link: current.link,
                       image: article.image,
                       author: article.author,
