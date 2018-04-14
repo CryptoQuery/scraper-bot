@@ -18,20 +18,8 @@ var config = {
     ]
   },
   cointelegraph: {
-    postUrl: 'https://cointelegraph.com/api/v1/ajax/categories/next',
-    press: [
-      {
-        url: 'https://cointelegraph.com/press-releases',
-        category_id: 58
-      }
-    ],
-    tags: [
-      'bitcoin',
-      'ethereum',
-      'altcoin',
-      'blockchain',
-      'bitcoin-regulation',
-      'bitcoin-scams'
+    categories: [
+      'https://www.feedspot.com/infiniterss.php?q=site:https%3A%2F%2Fcointelegraph.com%2Ffeed'
     ]
   },
   themerkle: {
@@ -42,8 +30,9 @@ var config = {
   }
 };
 
-//DONE: Get coindesk.com Articles (30 mins)
-new cron('0 0 0 1 * *', function() {
+//DONE: Get coindesk.com Articles (1 hour)
+new cron('0 5 * * * *', function() {
+  // run every 30 minutes
   q.fcall(function() {
     // Get articles form Coin Desk
     return coindesk.getArticlePages({
@@ -84,8 +73,48 @@ new cron('0 0 0 1 * *', function() {
   });
 }, null, true, 'America/Los_Angeles');
 
-//DONE: Get themerkle.com Articles (30 mins)
-new cron('0 0 0 1 * *', function() {
+//DONE: Get cointelegraph.com Articles (1 hour)
+new cron('0 10 * * * *', function() {
+  q.fcall(function() {
+    return cointelegraph.getArticlePages({
+      link: config.cointelegraph.categories[0]
+    }).then(function (articles) {
+      return misc.getArticlesByUrl({
+        url: _.map(articles, 'link')
+      }).then(function (result) {
+        return _.orderBy(_.differenceBy(articles, result, 'link'), ['published'], ['asc']).reduce(function (chain, current) {
+          return chain.then(function (previous) {
+            return q.delay(1000).then(function() {
+              return cointelegraph.getArticlePage({
+                link: current.link
+              }).then(function (article) {
+                return misc.addArticle({
+                  link: current.link,
+                  image: article.image,
+                  author: article.author,
+                  published_at: isNaN(Date.parse(article.published)) ? new Date().toISOString() : article.published,
+                  title: current.title,
+                  description: current.description,
+                  article: article.body
+                }).then(function (result) {
+                  console.log("Added article: ", current.link);
+                });
+              }).catch(function (error) {
+                console.log("Error adding article: ", current.link);
+              });
+            });
+          });
+        }, q([]));
+      });
+    }).catch(function (error) {
+      console.log(error);
+    });
+  });
+}, null, true, 'America/Los_Angeles');
+
+//DONE: Get themerkle.com Articles (1 hour)
+new cron('0 15 * * * *', function() {
+  // run every 30 minutes
   q.fcall(function() {
     // Get articles form Coin Desk
     return _.range(1,2).reduce(function (chain, current) {
