@@ -5,6 +5,7 @@ var cron = require('cron').CronJob;
 
 var coindesk = require('./lib/coindesk.js');
 var themerkle = require('./lib/themerkle.js');
+var cointelegraph = require('./lib/cointelegraph.js');
 var misc = require('./lib/misc.js');
 
 

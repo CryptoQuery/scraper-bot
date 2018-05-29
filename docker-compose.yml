@@ -4,13 +4,13 @@ services:
     build: .
     image: node:latest
     environment:
-      NODE_ENV: 'production'
+      NODE_ENV: 'development'
     volumes:
       - ./:/app
       - /app/node_modules
     logging:
       driver: "json-file"
       options:
-        max-size: "200k"
-        max-file: "10"
-    command: npm start
+        max-size: "100k"
+        max-file: "1"
+    command: npm run test
